@@ -8,7 +8,8 @@ services:
       POSTGRES_PASSWORD: examplepassword
       POSTGRES_DB: good_night_app_development
     volumes:
-      - db-data:/var/lib/postgresql/data
+      - store:/var/lib/postgresql/data
+
     ports:
       - "5433:5432"
 
@@ -16,9 +17,13 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
+    image: good_night_app_api
     command: ./bin/rails server -b 0.0.0.0
+    links:
+      - db
     volumes:
-      - .:/rails
+      - .:/app
+      - bundle:/usr/local/bundle
     ports:
       - "3001:3000"
     environment:
@@ -30,4 +35,7 @@ services:
     tty: true
 
 volumes:
-  db-data: 
+  store:
+    driver: local
+  bundle:
+    driver: local
