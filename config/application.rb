@@ -30,5 +30,8 @@ module GoodNightApp
     # Middleware like session, flash, cookies can be added back manually.
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
+
+    # Allow all hosts for development and test
+    config.hosts.clear if Rails.env.development? || Rails.env.test?
   end
 end
