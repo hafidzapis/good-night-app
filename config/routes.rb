@@ -2,6 +2,10 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       resources :users
+      
+      # Sleep records
+      post 'sleep_records/clock_in', to: 'sleep_records#clock_in'
+      patch 'sleep_records/:id/clock_out', to: 'sleep_records#clock_out'
     end
   end
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
