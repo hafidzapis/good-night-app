@@ -11,6 +11,7 @@ class Sleep < ApplicationRecord
   scope :completed, -> { where.not(clock_out_time: nil) }
   
   before_save :calculate_duration, if: :clock_out_time_changed?
+  after_save :schedule_daily_summary_update, if: :should_update_summary?
   
   private
   
@@ -27,5 +28,13 @@ class Sleep < ApplicationRecord
     if duration < MINIMUM_SLEEP_DURATION
       errors.add(:clock_out_time, "sleep duration must be at least #{MINIMUM_SLEEP_DURATION} minutes")
     end
+  end
+
+  def should_update_summary?
+    clock_out_time.present? && saved_change_to_clock_out_time?
+  end
+
+  def schedule_daily_summary_update
+    UserSleepSummaryJob.perform_later(user.id, clock_in_time.to_date)
   end
 end
