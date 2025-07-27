@@ -1,6 +1,8 @@
 module Api
   module V1
     class BaseController < ApplicationController
+      include ApiHelper
+      
       before_action :authenticate_user!
 
       private

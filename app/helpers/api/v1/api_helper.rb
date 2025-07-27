@@ -12,18 +12,26 @@ module Api
       end
 
       def render_paginated_collection(collection, key)
-        render json: {
-          key => collection,
-          meta: pagination_meta(collection)
+        {
+          json: {
+            key => collection,
+            meta: pagination_meta(collection)
+          }
         }
       end
 
-      def render_success_message(message, status = :ok)
-        render json: { message: message }, status: status
+      def render_success(message, status = :ok)
+        {
+          json: { message: message },
+          status: status
+        }
       end
 
       def render_error(error, status = :unprocessable_entity)
-        render json: { error: error }, status: status
+        {
+          json: { error: error },
+          status: status
+        }
       end
     end
   end

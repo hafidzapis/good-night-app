@@ -1,7 +1,17 @@
 Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
-      resources :users
+      resources :users do
+        member do
+          post :follow
+          delete :unfollow
+          get :is_following
+        end
+        collection do
+          get :followers
+          get :following
+        end
+      end
       
       # Sleep records
       post 'sleep_records/clock_in', to: 'sleep_records#clock_in'
