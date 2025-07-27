@@ -22,6 +22,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_25_081912) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_id", "date"], name: "index_daily_sleep_summaries_on_user_id_and_date", unique: true
+    t.index ["user_id", "total_sleep_duration_minutes", "date"], name: "index_daily_sleep_summaries_on_user_duration_date"
     t.index ["user_id"], name: "index_daily_sleep_summaries_on_user_id"
   end
 
