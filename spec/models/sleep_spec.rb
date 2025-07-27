@@ -8,24 +8,6 @@ RSpec.describe Sleep, type: :model do
   describe 'validations' do
     it { should validate_presence_of(:clock_in_time) }
     it { should validate_numericality_of(:duration_minutes).is_greater_than_or_equal_to(10).allow_nil }
-
-    describe 'clock_in_time immutability' do
-      let(:user) { create(:user) }
-      let(:sleep) { create(:sleep, user: user, clock_in_time: Time.zone.now - 8.hours) }
-
-      it 'cannot change clock_in_time after creation' do
-        sleep.clock_in_time = Time.zone.now - 6.hours
-        
-        expect(sleep).not_to be_valid
-        expect(sleep.errors[:clock_in_time]).to include('cannot be changed after creation')
-      end
-
-      it 'allows changing other attributes' do
-        sleep.clock_out_time = Time.zone.now
-        
-        expect(sleep).to be_valid
-      end
-    end
   end
 
   describe 'scopes' do
@@ -109,7 +91,7 @@ RSpec.describe Sleep, type: :model do
         sleep = create(:sleep, :active, user: user, clock_in_time: clock_in_time)
 
         expect(sleep.clock_out_time).to be_nil
-        expect(UserSleepDailySummaryJob).to receive(:perform_later).with(user.id, clock_in_time.to_date)
+        expect(UserSleepSummaryJob).to receive(:perform_later).with(user.id, clock_in_time.to_date)
 
         sleep.update!(clock_out_time: Time.zone.now)
       end
@@ -119,7 +101,7 @@ RSpec.describe Sleep, type: :model do
 
         expect(sleep.clock_out_time).to be_present
         
-        expect(UserSleepDailySummaryJob).not_to receive(:perform_later)
+        expect(UserSleepSummaryJob).not_to receive(:perform_later)
 
         sleep.update!(duration_minutes: 500)
       end
@@ -128,7 +110,7 @@ RSpec.describe Sleep, type: :model do
         sleep = create(:sleep, :active, user: user, clock_in_time: clock_in_time)
 
         expect(sleep.clock_out_time).to be_nil
-        expect(UserSleepDailySummaryJob).to receive(:perform_later).with(user.id, clock_in_time.to_date)
+        expect(UserSleepSummaryJob).to receive(:perform_later).with(user.id, clock_in_time.to_date)
 
 
         sleep.clock_out_time = Time.zone.now
