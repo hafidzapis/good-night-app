@@ -41,6 +41,7 @@ group :development, :test do
   gem 'faker'
   gem 'database_cleaner-active_record'
   gem 'shoulda-matchers'
+  gem 'timecop'
 end
 
 group :development do
@@ -49,4 +50,7 @@ end
 
 # Pagination
 gem "kaminari"
+
+# Dry gems for better code organization
+gem "dry-initializer"
 

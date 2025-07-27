@@ -96,6 +96,7 @@ GEM
     date (3.4.1)
     diff-lcs (1.6.2)
     drb (2.2.3)
+    dry-initializer (3.2.0)
     erb (4.0.4)
       cgi (>= 0.3.3)
     erubi (1.13.1)
@@ -257,6 +258,7 @@ GEM
       activesupport (>= 5.2.0)
     stringio (3.1.7)
     thor (1.4.0)
+    timecop (0.9.10)
     timeout (0.4.3)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
@@ -276,6 +278,7 @@ PLATFORMS
 DEPENDENCIES
   bootsnap
   database_cleaner-active_record
+  dry-initializer
   factory_bot_rails
   faker
   kaminari
@@ -285,6 +288,7 @@ DEPENDENCIES
   rspec-rails
   rubocop
   shoulda-matchers
+  timecop
   tzinfo-data
 
 RUBY VERSION
