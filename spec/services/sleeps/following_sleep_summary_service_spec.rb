@@ -67,6 +67,40 @@ RSpec.describe Sleeps::FollowingSleepSummaryService do
       end
     end
 
+    context 'with custom date range' do
+      let!(:summary1) { create(:daily_sleep_summary, user: followed_user1, date: Date.parse('2024-01-01'), total_sleep_duration_minutes: 480, number_of_sleep_sessions: 1) }
+      let!(:summary2) { create(:daily_sleep_summary, user: followed_user1, date: Date.parse('2024-01-02'), total_sleep_duration_minutes: 420, number_of_sleep_sessions: 2) }
+      let!(:summary3) { create(:daily_sleep_summary, user: followed_user2, date: Date.parse('2024-01-01'), total_sleep_duration_minutes: 360, number_of_sleep_sessions: 1) }
+
+      it 'returns friends summary for specified date range' do
+        service = described_class.new(
+          user: user,
+          start_date: '2024-01-01',
+          end_date: '2024-01-02'
+        )
+        result = service.call!
+
+        aggregate_failures do
+          expect(result.success?).to be true
+          data = result.data
+
+          expect(data[:period][:start_date]).to eq('2024-01-01')
+          expect(data[:period][:end_date]).to eq('2024-01-02')
+
+          friends_summary = data[:friends_summary]
+          expect(friends_summary.length).to eq(2)
+
+          alice_summary = friends_summary.find { |f| f[:user_name] == 'Alice' }
+          expect(alice_summary[:total_sleep_duration_minutes]).to eq(900)
+          expect(alice_summary[:total_days]).to eq(2)
+
+          bob_summary = friends_summary.find { |f| f[:user_name] == 'Bob' }
+          expect(bob_summary[:total_sleep_duration_minutes]).to eq(360)
+          expect(bob_summary[:total_days]).to eq(1)
+        end
+      end
+    end
+
     context 'with pagination' do
       let!(:followed_users) do
         (1..28).map { |i| create(:user, name: "User#{i}") }
@@ -93,10 +127,45 @@ RSpec.describe Sleeps::FollowingSleepSummaryService do
           pagination = data[:pagination]
           expect(pagination[:current_page]).to eq(2)
           expect(pagination[:per_page]).to eq(10)
-          expect(pagination[:total_count]).to eq(30) 
+          expect(pagination[:total_count]).to eq(30)
           expect(pagination[:total_pages]).to eq(3)
           expect(pagination[:has_next_page]).to be true
           expect(pagination[:has_prev_page]).to be true
+        end
+      end
+    end
+
+    context 'with invalid date parameters' do
+      it 'falls back to default date range' do
+        service = described_class.new(
+          user: user,
+          start_date: 'invalid-date',
+          end_date: 'also-invalid'
+        )
+        result = service.call!
+
+        aggregate_failures do
+          expect(result.success?).to be true
+          data = result.data
+
+          expect(data[:period][:start_date]).to eq(7.days.ago.to_date.to_s)
+          expect(data[:period][:end_date]).to eq(1.day.ago.to_date.to_s)
+        end
+      end
+    end
+
+    context 'with date range too large' do
+      it 'returns error for date range exceeding limit' do
+        service = described_class.new(
+          user: user,
+          start_date: '2024-01-01',
+          end_date: '2024-06-01'
+        )
+        result = service.call!
+
+        aggregate_failures do
+          expect(result.success?).to be false
+          expect(result.error).to eq('Date range is too long')
         end
       end
     end

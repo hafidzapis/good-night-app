@@ -2,33 +2,56 @@ module Sleeps
   class FollowingSleepSummaryService
     extend Dry::Initializer
 
+    MAX_DAYS_RANGE = 90
     DEFAULT_PER_PAGE = 25
     MAX_PER_PAGE = 100
     LAST_WEEK_DAYS = 7
 
     option :user
+    option :start_date, optional: true
+    option :end_date, optional: true
     option :page, optional: true, default: -> { 1 }
     option :per, optional: true, default: -> { DEFAULT_PER_PAGE }
 
     def call!
-              Result.success(
-          period: {
-            start_date: last_week_start_date.to_s,
-            end_date: last_week_end_date.to_s
-          },
-          friends_summary: build_friends_summary,
-          pagination: build_pagination_info
-        )
+      return Result.failure(error: 'Date range is too long') if date_range_too_large?
+
+      Result.success(
+        period: {
+          start_date: parsed_start_date.to_s,
+          end_date: parsed_end_date.to_s
+        },
+        friends_summary: build_friends_summary,
+        pagination: build_pagination_info
+      )
     end
 
     private
 
-    def last_week_start_date
-      @last_week_start_date ||= LAST_WEEK_DAYS.days.ago.to_date
+    def date_range_too_large?
+      (parsed_end_date - parsed_start_date) > MAX_DAYS_RANGE
     end
 
-    def last_week_end_date
-      @last_week_end_date ||= 1.day.ago.to_date
+    def parsed_start_date
+      @parsed_start_date ||= parse_date(start_date) || default_start_date
+    end
+
+    def parsed_end_date
+      @parsed_end_date ||= parse_date(end_date) || default_end_date
+    end
+
+    def parse_date(value)
+      Date.parse(value) if value.present?
+    rescue ArgumentError
+      nil
+    end
+
+    def default_start_date
+      LAST_WEEK_DAYS.days.ago.to_date
+    end
+
+    def default_end_date
+      1.day.ago.to_date
     end
 
     def paginated_followed_users
@@ -59,7 +82,7 @@ module Sleeps
         return [] if followed_user_ids.empty?
 
         ActiveRecord::Base.connection.execute(
-          ActiveRecord::Base.sanitize_sql_array([sql, last_week_start_date, last_week_end_date, followed_user_ids])
+          ActiveRecord::Base.sanitize_sql_array([sql, parsed_start_date, parsed_end_date, followed_user_ids])
         )
       end
     end
