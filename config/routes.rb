@@ -16,6 +16,8 @@ Rails.application.routes.draw do
       # Sleep records
       post 'sleep_records/clock_in', to: 'sleep_records#clock_in'
       patch 'sleep_records/:id/clock_out', to: 'sleep_records#clock_out'
+      get 'sleep_summaries', to: 'sleep_summaries#index'
+      get 'following_sleep_summaries', to: 'following_sleep_summaries#index'
     end
   end
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html

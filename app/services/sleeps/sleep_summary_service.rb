@@ -17,8 +17,8 @@ module Sleeps
 
       Result.success(
         period: {
-          start_date: parsed_start_date,
-          end_date: parsed_end_date
+          start_date: parsed_start_date.to_s,
+          end_date: parsed_end_date.to_s
         },
         summary: build_aggregated_stats,
         daily_breakdown: build_daily_breakdown,
@@ -123,8 +123,8 @@ module Sleeps
       {
         current_page: paginated_summaries.current_page,
         per_page: paginated_summaries.limit_value,
-        next_page: paginated_summaries.next_page,
-        prev_page: paginated_summaries.prev_page,
+        has_next_page: paginated_summaries.next_page.present?,
+        has_prev_page: paginated_summaries.prev_page.present?,
         total_count: paginated_summaries.total_count,
         total_pages: paginated_summaries.total_pages
       }
