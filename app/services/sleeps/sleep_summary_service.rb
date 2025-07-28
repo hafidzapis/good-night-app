@@ -4,7 +4,6 @@ module Sleeps
 
     MAX_DAYS_RANGE = 90
     DEFAULT_PER_PAGE = 25
-    MAX_PER_PAGE = 100
 
     option :user
     option :start_date, optional: true
