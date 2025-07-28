@@ -31,6 +31,9 @@ module GoodNightApp
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
 
+    # Configure Active Job to use async
+    config.active_job.queue_adapter = :async
+
     # Allow all hosts for development and test
     config.hosts.clear if Rails.env.development? || Rails.env.test?
   end
